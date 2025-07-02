@@ -1,0 +1,36 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "location_education.json",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "location_education.json": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 687.5,
+                "y": 324
+            }
+        },
+        "location_education.json#tile": {
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "D:/gurguts/programming/shooter/src/assets",
+    "map.lastUsedFormat": "json",
+    "openFiles": [
+        "location_education.json"
+    ],
+    "project": "shooter.tiled-project",
+    "recentFiles": [
+        "location_education.json"
+    ],
+    "tileset.embedInMap": true
+}
