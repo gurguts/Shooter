@@ -3,8 +3,10 @@ import { SPRITES, SIZES } from '../utils/constants.ts';
 
 export class Player extends Phaser.GameObjects.Container {
     public physicalBody: Phaser.Physics.Arcade.Sprite;
-    private bodySprite: Phaser.GameObjects.Sprite; // Renamed from 'body' to 'bodySprite'
+    private bodySprite: Phaser.GameObjects.Sprite;
     private head: Phaser.GameObjects.Sprite;
+    private hand: Phaser.GameObjects.Sprite;
+    private weapon: Phaser.GameObjects.Sprite;
     private textureKey: string;
     private isFacingRight: boolean = true;
     private isMoving: boolean = false;
@@ -12,6 +14,13 @@ export class Player extends Phaser.GameObjects.Container {
     private isCrouching: boolean = false;
     private moveSpeed: number = 200;
     private jumpSpeed: number = 400;
+    // Store original physical body dimensions and offset
+    private originalBodyHeight: number;
+    private originalBodyOffsetY: number;
+    // Store original sprite positions
+    private originalHeadY: number;
+    private originalHandY: number;
+    private originalWeaponY: number;
 
     constructor(scene: Phaser.Scene, x: number, y: number, texture: string) {
         super(scene, x, y);
@@ -30,6 +39,10 @@ export class Player extends Phaser.GameObjects.Container {
         this.physicalBody.setSize(SIZES.PLAYER.BODY_WIDTH * 0.3, totalHeight);
         this.physicalBody.setOffset(2.9 * headOffset, headOffset);
 
+        // Store original dimensions and offset
+        this.originalBodyHeight = totalHeight;
+        this.originalBodyOffsetY = headOffset;
+
         // Create visual body sprite
         this.bodySprite = new Phaser.GameObjects.Sprite(scene, 0, 0, texture, 0);
         this.bodySprite.setOrigin(0.5, 0.5);
@@ -41,9 +54,22 @@ export class Player extends Phaser.GameObjects.Container {
         this.head.setOrigin(0.5, 0.8);
         this.head.setScale(0.5);
         this.add(this.head);
+        this.originalHeadY = -27; // Store original head Y position
+
+        // Create hand
+        this.hand = new Phaser.GameObjects.Sprite(scene, -8, -20, SPRITES.PLAYER.HAND, 0);
+        this.hand.setScale(0.5);
+        this.add(this.hand);
+        this.originalHandY = -20; // Store original hand Y position
+
+        // Create weapon
+        this.weapon = new Phaser.GameObjects.Sprite(scene, 8, -20, SPRITES.WEAPON.GUN, 0);
+        this.weapon.setScale(0.5);
+        this.add(this.weapon);
+        this.originalWeaponY = -20; // Store original weapon Y position
 
         // Add container to scene
-        scene.add.existing(this as Phaser.GameObjects.GameObject); // Type assertion
+        scene.add.existing(this as Phaser.GameObjects.GameObject);
 
         // Create animations
         const anims = scene.anims;
@@ -95,6 +121,7 @@ export class Player extends Phaser.GameObjects.Container {
 
         // Reset flags
         this.isMoving = false;
+        const wasCrouching = this.isCrouching; // Track previous crouch state
         this.isCrouching = false;
 
         // Check if on ground
@@ -123,6 +150,37 @@ export class Player extends Phaser.GameObjects.Container {
             this.physicalBody.setVelocityX(0);
         }
 
+        // Handle crouching physical and visual adjustments
+        const crouchHeightReduction = this.originalBodyHeight * 0.3; // Reduce height by 30% when crouching
+        if (this.isCrouching && !wasCrouching) {
+            // Adjust physical body size and offset
+            const newHeight = this.originalBodyHeight - crouchHeightReduction;
+            const newOffsetY = this.originalBodyOffsetY + crouchHeightReduction;
+            this.physicalBody.setSize(
+                SIZES.PLAYER.BODY_WIDTH * 0.3,
+                newHeight
+            );
+            this.physicalBody.setOffset(2.9 * this.originalBodyOffsetY, newOffsetY);
+
+            // Lower visual components
+            const crouchOffset = crouchHeightReduction; // Same offset for visual alignment
+            this.head.y = this.originalHeadY + crouchOffset;
+            this.hand.y = this.originalHandY + crouchOffset;
+            this.weapon.y = this.originalWeaponY + crouchOffset;
+        } else if (!this.isCrouching && wasCrouching) {
+            // Restore physical body size and offset
+            this.physicalBody.setSize(
+                SIZES.PLAYER.BODY_WIDTH * 0.3,
+                this.originalBodyHeight
+            );
+            this.physicalBody.setOffset(2.9 * this.originalBodyOffsetY, this.originalBodyOffsetY);
+
+            // Restore visual components
+            this.head.y = this.originalHeadY;
+            this.hand.y = this.originalHandY;
+            this.weapon.y = this.originalWeaponY;
+        }
+
         // Manage body animations
         if (this.isJumping) {
             this.bodySprite.setFrame(this.isFacingRight ? 3 : 8);
@@ -143,19 +201,38 @@ export class Player extends Phaser.GameObjects.Container {
             this.bodySprite.setFrame(this.isFacingRight ? 0 : 1);
         }
 
-        // Manage head frame
+        // Manage head, hand, and weapon frames
         this.head.setFrame(this.isFacingRight ? 0 : 1);
+        this.hand.setFrame(this.isFacingRight ? 0 : 1);
+        this.weapon.setFrame(this.isFacingRight ? 0 : 1);
 
-        // Rotate head toward mouse
-        let angleToPointer = Phaser.Math.Angle.Between(this.x, this.y, worldPoint.x, worldPoint.y);
+        // Adjust positions for facing direction
+        if (this.isFacingRight) {
+            this.hand.setPosition(-8, this.hand.y); // Maintain adjusted Y
+            this.hand.setOrigin(0.2, 0.2);
+
+            this.weapon.setPosition(-10, this.weapon.y); // Maintain adjusted Y
+            this.weapon.setOrigin(-1.5, -0.8);
+        } else {
+            this.hand.setPosition(7, this.hand.y); // Maintain adjusted Y
+            this.hand.setOrigin(0.8, 0.2);
+
+            this.weapon.setPosition(9, this.weapon.y); // Maintain adjusted Y
+            this.weapon.setOrigin(2.5, -0.8);
+        }
+
+        // Rotate head, hand, and weapon toward mouse
+        let angleToPointer = Phaser.Math.Angle.Between(
+            this.x,
+            this.y + this.head.y, // Use adjusted head Y position
+            worldPoint.x,
+            worldPoint.y
+        );
         if (!this.isFacingRight) {
             angleToPointer = Math.PI + angleToPointer;
         }
         this.head.rotation = angleToPointer;
-
-        // Debug for jump
-        if (keys.up.isDown) {
-            console.log(`Up pressed, isOnGround: ${isOnGround}, isJumping: ${this.isJumping}`);
-        }
+        this.hand.rotation = angleToPointer;
+        this.weapon.rotation = angleToPointer;
     }
 }

@@ -11,6 +11,10 @@ export const SIZES ={
         HEAD_HEIGHT: 29,
         HAND_WIDTH: 52,
         HAND_HEIGHT: 31
+    },
+    WEAPON:{
+        FIRST_GUN_WIDTH: 22,
+        FIRST_GUN_HEIGHT: 9
     }
 }
 
@@ -23,6 +27,10 @@ export const LAYERS ={
 export const SPRITES ={
     PLAYER:{
         BODY: 'PlayerBody',
-        HEAD: 'PlayerHead'
+        HEAD: 'PlayerHead',
+        HAND: 'PlayerHand'
+    },
+    WEAPON:{
+        GUN:'Gun'
     }
 }

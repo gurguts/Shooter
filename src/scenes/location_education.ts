@@ -20,6 +20,14 @@ export class LocationEducation extends Phaser.Scene {
             frameWidth: SIZES.PLAYER.HEAD_WIDTH,
             frameHeight: SIZES.PLAYER.HEAD_HEIGHT,
         });
+        this.load.spritesheet(SPRITES.PLAYER.HAND, 'src/assets/characters/firstPlayerHand.png', {
+            frameWidth: SIZES.PLAYER.HAND_WIDTH,
+            frameHeight: SIZES.PLAYER.HAND_HEIGHT,
+        });
+        this.load.spritesheet(SPRITES.WEAPON.GUN, 'src/assets/weapon/firstGun.png', {
+            frameWidth: SIZES.WEAPON.FIRST_GUN_WIDTH,
+            frameHeight: SIZES.WEAPON.FIRST_GUN_HEIGHT,
+        });
     }
 
     create() {
