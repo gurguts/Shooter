@@ -10,6 +10,12 @@ new Phaser.Game({
     url: import.meta.env.VITE_URL || '',
     version: import.meta.env.VERSION || '0.0.1',
     backgroundColor: '#000000',
+    physics:{
+        default: 'arcade',
+        arcade:{
+            debug: true,
+        }
+    },
     scale:{
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,

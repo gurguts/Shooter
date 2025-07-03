@@ -5,16 +5,24 @@ export const TILES ={
 export const SIZES ={
     TILE:32,
     PLAYER:{
-        WIDTH: 100,
-        HEIGHT: 100
+        BODY_WIDTH: 100,
+        BODY_HEIGHT: 100,
+        HEAD_WIDTH: 29,
+        HEAD_HEIGHT: 29,
+        HAND_WIDTH: 52,
+        HAND_HEIGHT: 31
     }
 }
 
 export const LAYERS ={
     GROUND: 'ground',
+    SPACE: 'space',
     WALLS: 'walls'
 }
 
 export const SPRITES ={
-    PLAYER: 'Player'
+    PLAYER:{
+        BODY: 'PlayerBody',
+        HEAD: 'PlayerHead'
+    }
 }
