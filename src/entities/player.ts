@@ -12,8 +12,8 @@ export class Player extends Phaser.GameObjects.Container {
     private isMoving: boolean = false;
     private isJumping: boolean = false;
     private isCrouching: boolean = false;
-    private moveSpeed: number = 200;
-    private jumpSpeed: number = 400;
+    private moveSpeed: number = 300;
+    private jumpSpeed: number = 500;
     // Store original physical body dimensions and offset
     private originalBodyHeight: number;
     private originalBodyOffsetY: number;
@@ -29,7 +29,7 @@ export class Player extends Phaser.GameObjects.Container {
         // Create physical body
         this.physicalBody = new Phaser.Physics.Arcade.Sprite(scene, x, y, texture, 0);
         scene.physics.add.existing(this.physicalBody);
-        this.physicalBody.setGravityY(800);
+        this.physicalBody.setGravityY(1100);
         this.physicalBody.setCollideWorldBounds(true);
 
         // Set physical body size
@@ -108,6 +108,12 @@ export class Player extends Phaser.GameObjects.Container {
 
     update(_: number) {
         const keys = this.scene.input.keyboard.createCursorKeys();
+        const wasdKeys = this.scene.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.W,
+            down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D
+        }) as { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key; left: Phaser.Input.Keyboard.Key; right: Phaser.Input.Keyboard.Key };
         const pointer = this.scene.input.activePointer;
 
         // Sync container position with physical body
@@ -132,18 +138,18 @@ export class Player extends Phaser.GameObjects.Container {
             this.isJumping = false;
         }
 
-        // Handle input
-        if (keys.up.isDown && !keys.down.isDown && isOnGround && !this.isJumping) {
+// Handle input
+        if ((keys.up.isDown || wasdKeys.up.isDown) && !(keys.down.isDown || wasdKeys.down.isDown) && isOnGround && !this.isJumping) {
             this.isJumping = true;
             this.physicalBody.setVelocityY(-this.jumpSpeed);
             console.log('Jump triggered');
-        } else if (keys.down.isDown) {
+        } else if ((keys.down.isDown || wasdKeys.down.isDown) && isOnGround) { // Added isOnGround check
             this.isCrouching = true;
             this.physicalBody.setVelocityX(0);
-        } else if (keys.left.isDown && !keys.right.isDown) {
+        } else if ((keys.left.isDown || wasdKeys.left.isDown) && !(keys.right.isDown || wasdKeys.right.isDown)) {
             this.isMoving = true;
             this.physicalBody.setVelocityX(-this.moveSpeed);
-        } else if (keys.right.isDown && !keys.left.isDown) {
+        } else if ((keys.right.isDown || wasdKeys.right.isDown) && !(keys.left.isDown || wasdKeys.left.isDown)) {
             this.isMoving = true;
             this.physicalBody.setVelocityX(this.moveSpeed);
         } else {
@@ -181,19 +187,19 @@ export class Player extends Phaser.GameObjects.Container {
             this.weapon.y = this.originalWeaponY;
         }
 
-        // Manage body animations
+// Manage body animations
         if (this.isJumping) {
             this.bodySprite.setFrame(this.isFacingRight ? 3 : 8);
         } else if (this.isCrouching) {
             this.bodySprite.setFrame(this.isFacingRight ? 9 : 10);
         } else if (this.isMoving) {
-            if (keys.left.isDown && this.isFacingRight) {
+            if ((keys.left.isDown || wasdKeys.left.isDown) && this.isFacingRight) {
                 this.bodySprite.play('run_right_reverse', true);
-            } else if (keys.left.isDown && !this.isFacingRight) {
+            } else if ((keys.left.isDown || wasdKeys.left.isDown) && !this.isFacingRight) {
                 this.bodySprite.play('run_left', true);
-            } else if (keys.right.isDown && this.isFacingRight) {
+            } else if ((keys.right.isDown || wasdKeys.right.isDown) && this.isFacingRight) {
                 this.bodySprite.play('run_right', true);
-            } else if (keys.right.isDown && !this.isFacingRight) {
+            } else if ((keys.right.isDown || wasdKeys.right.isDown) && !this.isFacingRight) {
                 this.bodySprite.play('run_left_reverse', true);
             }
         } else {
