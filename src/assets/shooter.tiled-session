@@ -13,14 +13,17 @@
         },
         "location_education.json": {
             "scale": 1,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 687.5,
-                "y": 324
+                "x": 1321.5,
+                "y": 202.5
             }
         },
         "location_education.json#tile": {
             "scaleInEditor": 1
+        },
+        "location_education.json#tiles": {
+            "scaleInDock": 1
         }
     },
     "last.imagePath": "D:/gurguts/programming/shooter/src/assets",
